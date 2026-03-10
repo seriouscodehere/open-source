@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"middleware/base"
+	"github.com/seriouscodehere/open-source/middleware/base"
 )
 
 type DefaultLogger struct {

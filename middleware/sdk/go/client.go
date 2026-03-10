@@ -38,7 +38,7 @@ func NewClient(baseURL, apiKey, serviceID string) *Client {
 		baseURL:   baseURL,
 		apiKey:    apiKey,
 		serviceID: serviceID,
-		client:    &http.Client{Timeout: 2 * time.Second},
+		client:    &http.Client{Timeout: 5 * time.Second}, // Increased timeout
 	}
 }
 
@@ -50,8 +50,16 @@ func (c *Client) Check(ctx context.Context, endpoint, ip string, headers map[str
 		Headers:   headers,
 	}
 
-	jsonBody, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/check", bytes.NewBuffer(jsonBody))
+	jsonBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", c.baseURL+"/check", bytes.NewBuffer(jsonBody))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", c.apiKey)
 
@@ -61,9 +69,13 @@ func (c *Client) Check(ctx context.Context, endpoint, ip string, headers map[str
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
 	var result CheckResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	return &result, nil

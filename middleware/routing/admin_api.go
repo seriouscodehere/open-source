@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"middleware/base"
-	"middleware/config"
+	"github.com/seriouscodehere/open-source/middleware/base"
+	"github.com/seriouscodehere/open-source/middleware/config"
 
 	"github.com/go-chi/chi/v5"
 )

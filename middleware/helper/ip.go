@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"middleware/base"
+	"github.com/seriouscodehere/open-source/middleware/base"
 )
 
 // IPExtractor implements base.IPExtractorInterface

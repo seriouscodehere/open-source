@@ -3,8 +3,8 @@ package environment
 import (
 	"time"
 
-	"middleware/base"
-	"middleware/helper"
+	"github.com/seriouscodehere/open-source/middleware/base"
+	"github.com/seriouscodehere/open-source/middleware/helper"
 )
 
 // BaseConfig returns the foundational configuration from environment variables

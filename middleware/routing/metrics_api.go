@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"middleware/metrics"
+	"github.com/seriouscodehere/open-source/middleware/metrics"
 
 	"github.com/go-chi/chi/v5"
 )

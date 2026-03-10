@@ -1,4 +1,5 @@
-module middleware
+// module middleware
+module github.com/seriouscodehere/open-source/middleware
 
 go 1.25.0
 

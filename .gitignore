@@ -1,0 +1,70 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE & Editors
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# Dependencies
+node_modules/
+
+# Build Output
+dist/
+build/
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Cache & Temp
+*.tmp
+*.bak
+*.backup
+*.cache
+*.tsbuildinfo
+*.eslintcache
+*.prettiercache
+
+# Images & Media
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+
+# Archives & Binaries
+*.zip
+*.tar.gz
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Java
+*.class
+*.jar
+
+# Python
+*.pyc
+*.pyo
+__pycache__/
+
+# C/C++
+*.o
+
+# Database
+*.sql
+*.sqlite
+*.db
+*.csv
+
+# Git
+.git/

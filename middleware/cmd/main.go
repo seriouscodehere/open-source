@@ -20,14 +20,14 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
-	"middleware/base"
-	"middleware/config"
-	"middleware/helper"
-	"middleware/metrics"
-	"middleware/routing"
-	"middleware/storage/file"
-	"middleware/storage/memory"
-	redisstore "middleware/storage/redis"
+	"github.com/seriouscodehere/open-source/middleware/base"
+	"github.com/seriouscodehere/open-source/middleware/config"
+	"github.com/seriouscodehere/open-source/middleware/helper"
+	"github.com/seriouscodehere/open-source/middleware/metrics"
+	"github.com/seriouscodehere/open-source/middleware/routing"
+	"github.com/seriouscodehere/open-source/middleware/storage/file"
+	"github.com/seriouscodehere/open-source/middleware/storage/memory"
+	redisstore "github.com/seriouscodehere/open-source/middleware/storage/redis"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -391,6 +391,8 @@ func main() {
 	adminRouter.Mount("/metrics", metricsHandler.Routes())
 
 	r.Mount("/admin", adminRouter)
+	checkHandler := routing.NewCheckHandler(limiter, registry)
+	r.Mount("/check", checkHandler.Routes())
 
 	r.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
 		startTime := time.Now()
@@ -403,7 +405,7 @@ func main() {
 			http.NotFound(w, r)
 			return
 		}
-
+		// Around line 350-360 in main.go, after adminRouter setup:
 		rule, err := registry.GetCompiledRule(r.Context(), path)
 		if err != nil || rule.IsExcluded {
 			http.Error(w, `{"error": "no_upstream", "message": "No upstream configured for this path"}`, http.StatusNotFound)

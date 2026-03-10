@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"middleware/base"
+	"github.com/seriouscodehere/open-source/middleware/base"
 )
 
 // FileRegistry implements RuleRegistry using JSON file storage

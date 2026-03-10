@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 
-	"middleware/base"
+	"github.com/seriouscodehere/open-source/middleware/base"
 )
 
 // Backend implements base.Backend interface using Redis

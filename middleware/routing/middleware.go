@@ -12,8 +12,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"middleware/base"
-	"middleware/helper"
+	"github.com/seriouscodehere/open-source/middleware/base"
+	"github.com/seriouscodehere/open-source/middleware/helper"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"

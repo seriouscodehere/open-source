@@ -10,8 +10,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"middleware/base"
-	"middleware/helper"
+	"github.com/seriouscodehere/open-source/middleware/base"
+	"github.com/seriouscodehere/open-source/middleware/helper"
 )
 
 // EnvironmentConfig represents environment-specific configuration

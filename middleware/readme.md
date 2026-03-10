@@ -23,6 +23,7 @@
   - [16. Resolve Path](#16-resolve-path)
   - [17. Reload Rules](#17-reload-rules)
   - [18. Subscribe to Events](#18-subscribe-to-events)
+  - [19. Rate Limit Check Endpoint](#19-rate-limit-check-endpoint)
 - [Metrics API](#metrics-api)
 - [Configuration Reference](#configuration-reference)
 - [Best Practices](#best-practices)
@@ -1275,9 +1276,311 @@ curl -N http://localhost:8080/admin/apis/events \
   -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
 ```
 
+### 19. Rate Limit Check Endpoint
+
+The `/check` endpoint provides a **dry-run rate limiting check** that allows you to test whether a specific request would be allowed, blocked, or rate-limited without actually consuming quota or forwarding the request to the backend. This is useful for pre-flight checks, client-side rate limit awareness, and debugging.
+
+### 19.1 Check Rate Limit (Dry Run)
+
+**Endpoint:** `POST /check`
+
+Tests a hypothetical request against the rate limiting rules and returns the decision without incrementing counters or blocking the client.
+
+#### Request Body
+
+```json
+{
+  "service_id": "user-service",
+  "endpoint": "/api/users",
+  "ip": "192.168.1.100",
+  "user_id": "user_12345",
+  "headers": {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "Accept": "application/json"
+  }
+}
+```
+
+**Field Details:**
+
+| Field | Type | Required | Description |
+| ------- | ------ | ---------- | ------------- |
+| `service_id` | string | Yes | The service identifier to check against |
+| `endpoint` | string | Yes | The full path of the endpoint to test |
+| `ip` | string | Yes | Client IP address (IPv4 or IPv6) |
+| `user_id` | string | No | User identifier for user-based limiting (if provided, takes precedence over IP) |
+| `headers` | object | No | HTTP headers for bot detection analysis |
+
+#### Response (200 OK) - Allowed
+
+```json
+{
+  "allowed": true,
+  "reason": "allowed",
+  "service_id": "user-service",
+  "endpoint": "/api/users",
+  "client_id": "user_12345",
+  "limit_type": "user_based",
+  "remaining": 49,
+  "reset_at": "2026-03-10T10:05:00Z",
+  "rule": {
+    "requests_per_second": 50,
+    "burst_size": 100,
+    "block_duration": 300000000000
+  }
+}
+```
+
+#### Response (200 OK) - Blocked/Bot Detected
+
+```json
+{
+  "allowed": false,
+  "reason": "bot_detected",
+  "service_id": "user-service",
+  "endpoint": "/api/users",
+  "client_id": "192.168.1.200",
+  "limit_type": "ip_based",
+  "details": "Missing or suspicious User-Agent header"
+}
+```
+
+#### Response (200 OK) - Rate Limit Exceeded
+
+```json
+{
+  "allowed": false,
+  "reason": "rate_limit_exceeded",
+  "service_id": "user-service",
+  "endpoint": "/api/users",
+  "client_id": "192.168.1.50",
+  "limit_type": "ip_based",
+  "retry_after": 45,
+  "details": "Rate limit exceeded. Try again in 45 seconds."
+}
+```
+
+#### Response (200 OK) - Excluded Path
+
+```json
+{
+  "allowed": true,
+  "reason": "excluded_path",
+  "service_id": "user-service",
+  "endpoint": "/health",
+  "details": "Path is excluded from rate limiting"
+}
+```
+
+#### Response (400 Bad Request) - Missing Required Fields
+
+```json
+{
+  "error": "missing_required_fields",
+  "message": "service_id, endpoint, and ip are required"
+}
+```
+
+#### Response (400 Bad Request) - Invalid JSON
+
+```json
+{
+  "error": "invalid_json",
+  "message": "Request body contains malformed JSON"
+}
+```
+
+#### Response (401 Unauthorized) - Missing API Key
+
+```json
+{
+  "error": "unauthorized",
+  "message": "X-API-Key header is required"
+}
+```
+
+#### cURL Examples
+
+**Basic Check (Allowed):**
+
+```bash
+curl -X POST http://localhost:8080/check \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "service_id": "user-service",
+    "endpoint": "/api/users",
+    "ip": "192.168.1.100",
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Accept": "application/json"
+    }
+  }'
+```
+
+**Check with User ID (User-Based Limiting):**
+
+```bash
+curl -X POST http://localhost:8080/check \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "service_id": "order-service",
+    "endpoint": "/api/orders",
+    "ip": "192.168.1.101",
+    "user_id": "user_12345",
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+      "Accept": "application/json"
+    }
+  }'
+```
+
+**Bot Detection Test (Should Return Blocked):**
+
+```bash
+curl -X POST http://localhost:8080/check \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "service_id": "user-service",
+    "endpoint": "/api/users",
+    "ip": "192.168.1.200",
+    "headers": {
+      "User-Agent": "curl/7.68.0",
+      "Accept": "*/*"
+    }
+  }'
+```
+
+**IPv6 Address Check:**
+
+```bash
+curl -X POST http://localhost:8080/check \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "service_id": "order-service",
+    "endpoint": "/api/orders",
+    "ip": "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36",
+      "Accept": "application/json"
+    }
+  }'
+```
+
+**Excluded Path Check (Health Check):**
+
+```bash
+curl -X POST http://localhost:8080/check \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-api-key" \
+  -d '{
+    "service_id": "user-service",
+    "endpoint": "/health",
+    "ip": "192.168.1.102",
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Accept": "application/json"
+    }
+  }'
+```
+
 ---
 
-## Metrics API
+### 19.2 Check Response Fields Reference
+
+| Field | Type | Description |
+| ------- | ------ | ------------- |
+| `allowed` | boolean | Whether the request would be allowed |
+| `reason` | string | Decision reason: `allowed`, `rate_limit_exceeded`, `bot_detected`, `blocked_ip`, `excluded_path`, `service_not_found`, `endpoint_not_found` |
+| `service_id` | string | The service that was checked |
+| `endpoint` | string | The endpoint path that was checked |
+| `client_id` | string | The identifier used for limiting (IP or user_id) |
+| `limit_type` | string | `ip_based`, `user_based`, or `none` |
+| `remaining` | number | Remaining requests in current window (if applicable) |
+| `reset_at` | string | ISO 8601 timestamp when the limit resets (if applicable) |
+| `retry_after` | number | Seconds until retry is allowed (if rate limited) |
+| `rule` | object | The rate limit rule that was applied |
+| `details` | string | Human-readable explanation of the decision |
+
+---
+
+### 19.3 Bot Detection Behavior
+
+The `/check` endpoint includes bot detection that analyzes the `User-Agent` header and other request characteristics:
+
+| Scenario | Result | Reason |
+| ---------- | -------- | -------- |
+| Missing `User-Agent` | Blocked | `bot_detected` |
+| Empty `User-Agent` | Blocked | `bot_detected` |
+| Known bot signatures (curl, wget, python-requests, etc.) | Blocked | `bot_detected` |
+| Suspicious patterns | Blocked | `bot_detected` |
+| Valid browser User-Agent | Allowed | `allowed` |
+
+---
+
+### 19.4 Rate Limiting Behavior
+
+The check endpoint evaluates limits in this priority order:
+
+1. **Excluded Paths**: If the path matches an exclusion list (e.g., `/health`), returns `allowed` immediately
+2. **Bot Detection**: If bot detected, returns `blocked` immediately
+3. **Blocked IPs**: If IP is in blocklist, returns `blocked` with remaining block time
+4. **User-Based Limiting**: If `user_id` provided, check against user limits
+5. **IP-Based Limiting**: If no `user_id`, check against IP limits (with subnet normalization)
+
+**Important Notes:**
+
+- The `/check` endpoint is a **dry-run** - it does not consume quota or increment counters
+- It returns the **current state** of limits without modifying them
+- Use this for pre-flight checks before making actual requests
+- The endpoint requires `X-API-Key` authentication (different from admin endpoints that use `Bearer` tokens)
+
+---
+
+### 19.5 Testing Rate Limits with Check Endpoint
+
+Since `/check` doesn't consume quota, you can use it to safely test your rate limiting configuration:
+
+```bash
+# Test 1: Verify normal request is allowed
+curl -X POST http://localhost:8080/check \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: test-key" \
+  -d '{"service_id":"payment-service","endpoint":"/api/v1/payments","ip":"192.168.1.1","headers":{"User-Agent":"Mozilla/5.0"}}'
+
+# Test 2: Verify bot is detected
+curl -X POST http://localhost:8080/check \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: test-key" \
+  -d '{"service_id":"payment-service","endpoint":"/api/v1/payments","ip":"192.168.1.1","headers":{"User-Agent":"curl/7.68.0"}}'
+
+# Test 3: Verify excluded path
+curl -X POST http://localhost:8080/check \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: test-key" \
+  -d '{"service_id":"payment-service","endpoint":"/health","ip":"192.168.1.1","headers":{"User-Agent":"Mozilla/5.0"}}'
+```
+
+## Additional System Endpoints
+
+**Where to insert:** Place this entire block immediately before the "Additional System Endpoints" section (which starts with `### Health Check`). The `---` horizontal rule at the beginning creates proper separation from the previous Metrics API section.
+
+Also, update your **Table of Contents** at the top of the README to include:
+
+- [Rate Limit Check Endpoint](#19-rate-limit-check-endpoint)
+  - [19.1 Check Rate Limit (Dry Run)](#191-check-rate-limit-dry-run)
+  - [19.2 Check Response Fields Reference](#192-check-response-fields-reference)
+  - [19.3 Bot Detection Behavior](#193-bot-detection-behavior)
+  - [19.4 Rate Limiting Behavior](#194-rate-limiting-behavior)
+  - [19.5 Testing Rate Limits with Check Endpoint]
+  - [Testing-rate-limits-with-check-endpoint]
+
+---
+
+### Metrics API
 
 The Metrics API provides real-time and historical metrics for monitoring API usage and performance.
 
@@ -1570,7 +1873,7 @@ Returned by Test Rule and Resolve Path endpoints:
 
 ### Method Mismatch Example
 
-```
+```code
 Request:  GET /api/users
 Endpoint: POST /api/users
 Result:   405 Method Not Allowed
@@ -1800,19 +2103,24 @@ Response:
 
 ---
 
-**Version:** 2.0  
+## Key Changes
+
+| # | Change | Description |
+| --- | -------- | ------------- |
+| 1 | **Removed `base_path` requirement** | Field is now optional per code comments ("base_path is now optional") |
+| 2 | **Removed `auth_type` from endpoints** | Authentication handled at middleware layer, not per-endpoint (code comments: "REMOVED: auth_type handling - no longer supported") |
+| 3 | **Removed `metadata` field** | Not present in actual API structures |
+| 4 | **Added complete Metrics API section** | Full documentation for metrics endpoints from `metrics_handler.go` |
+| 5 | **Fixed `endpoints` array requirement** | Validated as required (code checks `len(api.Endpoints) == 0`) |
+| 6 | **Added strict HTTP method validation** | Invalid methods rejected with 400 error |
+| 7 | **Removed `window_size` from user input** | Auto-calculated by system, not user-configurable |
+| 8 | **Updated reverse proxy behavior** | Documents no path stripping and strict method matching |
+| 9 | **Added timestamp fields** | `created_at` and `updated_at` present in all responses |
+| 10 | **Corrected nanosecond durations** | Using actual code values (e.g., 300000000000 for 5 minutes) |
+| 11 | **Added Rate Limit Check (`/check`) endpoint** | Complete documentation for dry-run rate limit testing with bot detection, user/IP-based limiting, and excluded paths |
+
+---
+
+**Version:** 3.0  
 **Last Updated:** March 10, 2026  
-**Maintained By:** Platform Engineering Team
-
-## Key Changes Made Based on Your Code
-
-1. **Removed `base_path` as required** - Your code shows `base_path` is no longer required (comment says "base_path is now optional")
-2. **Removed `auth_type` from endpoints** - Your code has comments "REMOVED: auth_type handling - no longer supported" in multiple places
-3. **Removed `metadata` field** - Not present in your actual API structures
-4. **Added Metrics API section** - Complete documentation for the metrics endpoints from `metrics_handler.go`
-5. **Fixed field requirements** - `endpoints` array is required (your code validates `len(api.Endpoints) == 0`)
-6. **Added strict method validation** - Your code validates HTTP methods and rejects invalid ones
-7. **Removed `window_size` from user input** - Auto-calculated, not user-configurable per your code
-8. **Updated reverse proxy section** - Reflects actual behavior: no path stripping, strict method matching
-9. **Added `created_at` and `updated_at` fields** - Present in your actual responses
-10. **Corrected nanosecond durations** - Using actual values from your code (300000000000 for 5 minutes)
+**Maintained By:** Muhammad Waleed

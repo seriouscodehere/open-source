@@ -66,5 +66,73 @@
     "status": "active",
     "tags": null,
     "metadata": null
+  },
+  {
+    "id": "payment-service",
+    "service_id": "payments-v1",
+    "name": "Payment Service",
+    "description": "",
+    "upstream_url": "http://payment-backend:8080",
+    "base_path": "",
+    "endpoints": [
+      {
+        "id": "health",
+        "path": "/health",
+        "method": "GET",
+        "pattern": "",
+        "limits": {
+          "requests_per_second": 1000,
+          "burst_size": 2000,
+          "window_size": 0,
+          "block_duration": 300000000000,
+          "use_sliding_window": true
+        },
+        "priority": 1,
+        "enabled": true
+      },
+      {
+        "id": "list-payments",
+        "path": "/api/v1/payments",
+        "method": "GET",
+        "pattern": "",
+        "limits": {
+          "requests_per_second": 50,
+          "burst_size": 100,
+          "window_size": 0,
+          "block_duration": 300000000000,
+          "use_sliding_window": true
+        },
+        "priority": 10,
+        "enabled": true
+      },
+      {
+        "id": "create-payment",
+        "path": "/api/v1/payments",
+        "method": "POST",
+        "pattern": "",
+        "limits": {
+          "requests_per_second": 20,
+          "burst_size": 40,
+          "window_size": 0,
+          "block_duration": 600000000000,
+          "use_sliding_window": true
+        },
+        "priority": 20,
+        "enabled": true
+      }
+    ],
+    "default_limits": {
+      "requests_per_second": 50,
+      "burst_size": 100,
+      "window_size": 0,
+      "block_duration": 300000000000,
+      "use_sliding_window": true
+    },
+    "created_at": "2026-03-10T14:48:27.976698969+05:00",
+    "updated_at": "2026-03-10T14:48:27.976767798+05:00",
+    "created_by": "",
+    "status": "active",
+    "tags": null,
+    "metadata": null
   }
 ]

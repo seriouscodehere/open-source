@@ -1017,7 +1017,346 @@
           }
         }
       ]
+    },
+    {
+  "name": "10. Rate Limit Checks",
+  "item": [
+    {
+      "name": "Check Rate Limit - Allowed",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"user-service\",\n  \"endpoint\": \"/api/users\",\n  \"ip\": \"192.168.1.100\",\n  \"headers\": {\n    \"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\",\n    \"Accept\": \"application/json\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Dry-run rate limit check that should be allowed (first request)"
+      }
+    },
+    {
+      "name": "Check Rate Limit - With User ID",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"order-service\",\n  \"endpoint\": \"/api/orders\",\n  \"ip\": \"192.168.1.101\",\n  \"user_id\": \"user_12345\",\n  \"headers\": {\n    \"User-Agent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)\",\n    \"Accept\": \"application/json\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Check with user_id - uses user-based limiting instead of IP"
+      }
+    },
+    {
+      "name": "Check Rate Limit - Bot Detected",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"user-service\",\n  \"endpoint\": \"/api/users\",\n  \"ip\": \"192.168.1.200\",\n  \"headers\": {\n    \"User-Agent\": \"curl/7.68.0\",\n    \"Accept\": \"*/*\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Should detect bot signature (curl) and return blocked"
+      }
+    },
+    {
+      "name": "Check Rate Limit - Missing User Agent",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"user-service\",\n  \"endpoint\": \"/api/users\",\n  \"ip\": \"192.168.1.201\",\n  \"headers\": {\n    \"Accept\": \"application/json\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Should detect missing User-Agent as bot"
+      }
+    },
+    {
+      "name": "Check Rate Limit - Missing Required Fields",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"user-service\",\n  \"endpoint\": \"/api/users\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Should return 400 error - missing required 'ip' field"
+      }
+    },
+    {
+      "name": "Check Rate Limit - Invalid JSON",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"user-service\",\n  \"endpoint\": \"/api/users\",\n  \"ip\": \"192.168.1.100\"\n  \"headers\": {}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Should return 400 error - malformed JSON"
+      }
+    },
+    {
+      "name": "Check Rate Limit - Excluded Path",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"user-service\",\n  \"endpoint\": \"/health\",\n  \"ip\": \"192.168.1.102\",\n  \"headers\": {\n    \"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\",\n    \"Accept\": \"application/json\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Check against excluded path (health check) - should be allowed"
+      }
+    },
+    {
+      "name": "Check Rate Limit - IPv6 Address",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"order-service\",\n  \"endpoint\": \"/api/orders\",\n  \"ip\": \"2001:0db8:85a3:0000:0000:8a2e:0370:7334\",\n  \"headers\": {\n    \"User-Agent\": \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36\",\n    \"Accept\": \"application/json\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Check with IPv6 address - tests subnet normalization"
+      }
+    },
+    {
+      "name": "Check Rate Limit - Stress Test (Rapid Requests)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"payment-service\",\n  \"endpoint\": \"/api/v1/payments\",\n  \"ip\": \"192.168.1.50\",\n  \"headers\": {\n    \"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\",\n    \"Accept\": \"application/json\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Use with Postman Runner to test rate limiting under load - should eventually return rate_limit_exceeded"
+      }
+    },
+    {
+      "name": "Check Rate Limit - Blocked IP",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"user-service\",\n  \"endpoint\": \"/api/users\",\n  \"ip\": \"10.0.0.99\",\n  \"headers\": {\n    \"User-Agent\": \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\",\n    \"Accept\": \"application/json\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Check against a previously blocked IP - should return blocked with remaining time"
+      }
+    },
+    {
+      "name": "Check Rate Limit - No API Key",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"user-service\",\n  \"endpoint\": \"/api/users\",\n  \"ip\": \"192.168.1.100\",\n  \"headers\": {}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Should fail without X-API-Key header (401 Unauthorized)"
+      }
+    },
+    {
+      "name": "Check Rate Limit - Empty Body",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": ""
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Should return 400 error - empty request body"
+      }
+    },
+    {
+      "name": "Check Rate Limit - Different Service",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "{{api_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"service_id\": \"inventory-service\",\n  \"endpoint\": \"/api/products\",\n  \"ip\": \"192.168.2.10\",\n  \"user_id\": \"admin_001\",\n  \"headers\": {\n    \"User-Agent\": \"InternalService/1.0\",\n    \"Accept\": \"application/json\",\n    \"X-Internal-Auth\": \"true\"\n  }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/check",
+          "host": ["{{base_url}}"],
+          "path": ["check"]
+        },
+        "description": "Check for a different service - tests service-specific rate limits"
+      }
     }
+  ]
+}
   ],
   "event": [
     {
@@ -1047,11 +1386,6 @@
       "type": "string"
     },
     {
-      "key": "user_token",
-      "value": "YOUR_USER_TOKEN",
-      "type": "string"
-    },
-    {
       "key": "api_id",
       "value": "order-service",
       "type": "string"
@@ -1063,3 +1397,4 @@
     }
   ]
 }
+

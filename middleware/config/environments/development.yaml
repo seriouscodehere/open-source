@@ -1,0 +1,38 @@
+# Development Environment Configuration
+# Relaxed limits for testing with file-based API persistence
+
+environment: development
+
+server:
+  port: "8080"
+  structured_logging: false
+
+storage:
+  type: "memory"  # Backend storage: memory or redis (for rate limiting data)
+  # Registry is always file-based now for API persistence
+
+global_limits:
+  enabled: false  # No global limits in dev
+
+security:
+  ip_strategy: "direct"
+  admin_auth_token: "Ezoj8Ijk2bvlBpQtqr+YCY6EQql8hE/OT3Cwi7SnQX0="
+
+bot_detection:
+  level: "none"  # No bot detection in dev
+
+circuit_breaker:
+  threshold: 100  # Very high threshold
+  timeout: 5s
+
+violation_handling:
+  base_block_duration: 1m   # Short blocks
+  max_block_duration: 5m
+  enable_jitter: false
+
+logging:
+  level: "debug"
+  structured: false
+
+client_cookies:
+  enabled: false

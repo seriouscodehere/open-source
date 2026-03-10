@@ -1,0 +1,50 @@
+# Staging Environment Configuration
+# Production-like but less aggressive
+
+environment: staging
+
+server:
+  port: "8080"
+  structured_logging: true
+
+storage:
+  type: "redis"
+  redis:
+    addr: "redis-staging.internal:6379"
+    db: 1
+
+global_limits:
+  enabled: true
+  requests_per_second: 500.0
+  burst_size: 1000
+
+security:
+  ip_strategy: "trusted_proxy"
+  trusted_proxies:
+    - "10.0.0.0/8"
+  admin_auth_token: "${STAGING_ADMIN_TOKEN}"
+
+bot_detection:
+  level: "medium"
+
+circuit_breaker:
+  threshold: 5
+  timeout: 30s
+
+violation_handling:
+  base_block_duration: 15m
+  max_block_duration: 2h
+  enable_jitter: true
+
+logging:
+  level: "info"
+  structured: true
+
+metrics:
+  enabled: true
+  prometheus:
+    enabled: true
+
+client_cookies:
+  enabled: true
+  secure: true

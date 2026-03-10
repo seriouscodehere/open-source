@@ -1,0 +1,125 @@
+# config/rules.yaml
+# Minimal static configuration - APIs are registered dynamically via admin API
+# This file only contains global defaults and system settings
+
+# ==========================================
+# GLOBAL DEFAULTS (Fallback when no dynamic rule matches)
+# ==========================================
+global:
+  requests_per_second: 10.0     # Default: 10 req/s
+  burst_size: 20                # Default burst
+  window_size: 10s              # Default window
+  block_duration: 5m            # Default block: 5 minutes
+  use_sliding_window: true      # Use sliding window by default
+  
+  # Global rate limit across all requests (optional safety net)
+  global_rate_limit: 10000.0    # 10k req/s across all endpoints
+  global_burst: 1000
+  global_window_size: 1s
+
+# ==========================================
+# SYSTEM / INTERNAL ENDPOINTS (Always required)
+# These are excluded from rate limiting or have special handling
+# ==========================================
+system:
+  # Health check - no rate limiting
+  excluded_paths:
+    - "/health"
+    - "/admin/health"
+    - "/admin/apis/events"       # SSE endpoint needs special handling
+  
+  # Admin API - uses auth token instead of IP-based limiting
+  admin_api:
+    requests_per_second: 100.0   # High limit for admin operations
+    burst_size: 50
+    require_auth: true
+
+# ==========================================
+# DEFAULT SERVICE TEMPLATES (Optional)
+# Used when creating new APIs via admin API if no specific limits provided
+# ==========================================
+service_templates:
+  # Template for high-security financial endpoints
+  high_security:
+    requests_per_second: 0.1
+    burst_size: 1
+    window_size: 10s
+    block_duration: 24h
+  
+  # Template for authentication endpoints
+  auth:
+    requests_per_second: 0.5
+    burst_size: 3
+    window_size: 10s
+    block_duration: 30m
+  
+  # Template for user-facing CRUD operations
+  standard:
+    requests_per_second: 2.0
+    burst_size: 10
+    window_size: 5s
+    block_duration: 5m
+  
+  # Template for internal/admin operations
+  internal:
+    requests_per_second: 10.0
+    burst_size: 20
+    window_size: 5s
+    block_duration: 5m
+  
+  # Template for public/webhook endpoints
+  public:
+    requests_per_second: 1.0
+    burst_size: 5
+    window_size: 5s
+    block_duration: 5m
+
+# ==========================================
+# IP EXTRACTION & SECURITY SETTINGS
+# ==========================================
+ip_extraction:
+  strategy: 0                   # 0=direct, 1=cloudflare, 2=trusted_proxy, 3=aws
+  trusted_proxies: []             # CIDR ranges of trusted proxies
+  trusted_header: ""              # Custom header for IP (e.g., X-Real-IP)
+  enable_ipv6_subnet: true        # Group IPv6 by /56 subnet
+  ipv6_subnet_size: 56
+
+# ==========================================
+# BOT DETECTION
+# ==========================================
+bot_detection:
+  level: 1                        # 0=none, 1=low, 2=medium, 3=high
+  
+  # Custom bot signatures (added to default list)
+  custom_signatures:
+    - "my-internal-scraper"
+    - "custom-bot-name"
+
+# ==========================================
+# CIRCUIT BREAKER (Redis backend health)
+# ==========================================
+circuit_breaker:
+  threshold: 5                    # Failures before opening
+  timeout: 30s                    # Reset timeout
+  max_probes: 3                   # Probes before closing
+
+# ==========================================
+# COOKIE & HEADER SETTINGS
+# ==========================================
+cookies:
+  block_status_enabled: true
+  block_status_name: "__rl_status"
+  secure: true
+  same_site: "Strict"
+
+headers:
+  user_id_header: "X-User-ID"     # Header for per-user limiting
+  trusted_user_id: false          # Only trust from validated proxies
+
+# ==========================================
+# METADATA
+# ==========================================
+metadata:
+  version: "2.0"
+  description: "Dynamic API rate limiting - configure via /admin/apis"
+  last_updated: "2024-01-01"

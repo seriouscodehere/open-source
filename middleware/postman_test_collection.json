@@ -1,0 +1,1065 @@
+{
+  "info": {
+    "name": "Admin API Management - Complete Testing Collection",
+    "description": "Comprehensive Postman collection for testing Admin API Management endpoints including API CRUD, endpoints management, bulk operations, templates, metrics, and event streaming.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "admin-api-management-v2"
+  },
+  "item": [
+    {
+      "name": "1. API Management",
+      "item": [
+        {
+          "name": "Create API (Full)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"user-service\",\n  \"service_id\": \"user-service-v1\",\n  \"name\": \"User Service API\",\n  \"description\": \"Handles user operations\",\n  \"upstream_url\": \"http://user-backend:8080\",\n  \"status\": \"active\",\n  \"default_limits\": {\n    \"requests_per_second\": 100,\n    \"burst_size\": 200,\n    \"block_duration\": 300000000000\n  },\n  \"endpoints\": [\n    {\n      \"id\": \"get-users\",\n      \"path\": \"/api/users\",\n      \"method\": \"GET\",\n      \"limits\": {\n        \"requests_per_second\": 50,\n        \"burst_size\": 100,\n        \"block_duration\": 300000000000\n      },\n      \"priority\": 10\n    },\n    {\n      \"id\": \"create-user\",\n      \"path\": \"/api/users\",\n      \"method\": \"POST\",\n      \"limits\": {\n        \"requests_per_second\": 20,\n        \"burst_size\": 40,\n        \"block_duration\": 600000000000\n      },\n      \"priority\": 20\n    },\n    {\n      \"id\": \"get-user\",\n      \"path\": \"/api/users/{id}\",\n      \"method\": \"GET\",\n      \"limits\": {\n        \"requests_per_second\": 60,\n        \"burst_size\": 120\n      },\n      \"priority\": 15\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis"]
+            },
+            "description": "Creates a new API with full configuration including multiple endpoints and custom rate limits"
+          }
+        },
+        {
+          "name": "Create API (Minimal)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"minimal-api\",\n  \"service_id\": \"minimal-service\",\n  \"upstream_url\": \"http://minimal-backend:8080\",\n  \"endpoints\": [\n    {\n      \"id\": \"health\",\n      \"path\": \"/health\",\n      \"method\": \"GET\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis"]
+            },
+            "description": "Creates an API with only required fields"
+          }
+        },
+        {
+          "name": "Create Order Service API",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"order-service\",\n  \"service_id\": \"commerce-v1\",\n  \"name\": \"Order Service\",\n  \"description\": \"Handles order processing\",\n  \"upstream_url\": \"http://order-backend:8080\",\n  \"status\": \"active\",\n  \"default_limits\": {\n    \"requests_per_second\": 100,\n    \"burst_size\": 200,\n    \"block_duration\": 300000000000\n  },\n  \"endpoints\": [\n    {\n      \"id\": \"list-orders\",\n      \"path\": \"/api/orders\",\n      \"method\": \"GET\",\n      \"limits\": {\n        \"requests_per_second\": 50,\n        \"burst_size\": 100\n      },\n      \"priority\": 10\n    },\n    {\n      \"id\": \"create-order\",\n      \"path\": \"/api/orders\",\n      \"method\": \"POST\",\n      \"limits\": {\n        \"requests_per_second\": 20,\n        \"burst_size\": 40,\n        \"block_duration\": 600000000000\n      },\n      \"priority\": 20\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis"]
+            }
+          }
+        },
+        {
+          "name": "List All APIs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis"]
+            }
+          }
+        },
+        {
+          "name": "List APIs with Filters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis?status=active&service_id=commerce-v1&limit=10&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active"
+                },
+                {
+                  "key": "service_id",
+                  "value": "commerce-v1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Single API",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update API (Full)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Order Service\",\n  \"description\": \"Updated description for order processing\",\n  \"upstream_url\": \"http://new-order-backend:8080\",\n  \"status\": \"active\",\n  \"default_limits\": {\n    \"requests_per_second\": 150,\n    \"burst_size\": 300,\n    \"block_duration\": 300000000000\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update API (Partial - Status)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"maintenance\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update API (Partial - Limits)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"default_limits\": {\n    \"requests_per_second\": 200,\n    \"burst_size\": 400,\n    \"block_duration\": 300000000000\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete API",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Endpoint Management",
+      "item": [
+        {
+          "name": "List Endpoints",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}/endpoints",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}", "endpoints"]
+            }
+          }
+        },
+        {
+          "name": "Add Endpoint",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"update-order\",\n  \"path\": \"/api/orders/{id}\",\n  \"method\": \"PUT\",\n  \"limits\": {\n    \"requests_per_second\": 15,\n    \"burst_size\": 30,\n    \"block_duration\": 300000000000\n  },\n  \"priority\": 25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}/endpoints",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}", "endpoints"]
+            }
+          }
+        },
+        {
+          "name": "Get Endpoint",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}/endpoints/{{endpoint_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}", "endpoints", "{{endpoint_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Endpoint (Full)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"path\": \"/api/orders/v2/{id}\",\n  \"method\": \"PATCH\",\n  \"limits\": {\n    \"requests_per_second\": 25,\n    \"burst_size\": 50,\n    \"block_duration\": 300000000000\n  },\n  \"priority\": 15\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}/endpoints/{{endpoint_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}", "endpoints", "{{endpoint_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Endpoint (Partial - Limits)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"limits\": {\n    \"requests_per_second\": 100,\n    \"burst_size\": 200\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}/endpoints/{{endpoint_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}", "endpoints", "{{endpoint_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Endpoint (Partial - Priority)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priority\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}/endpoints/{{endpoint_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}", "endpoints", "{{endpoint_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Endpoint",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/{{api_id}}/endpoints/{{endpoint_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "{{api_id}}", "endpoints", "{{endpoint_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Bulk Operations",
+      "item": [
+        {
+          "name": "Bulk Import APIs",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"apis\": [\n    {\n      \"id\": \"bulk-api-1\",\n      \"service_id\": \"bulk-service\",\n      \"name\": \"Bulk API 1\",\n      \"upstream_url\": \"http://localhost:8082\",\n      \"default_limits\": {\n        \"requests_per_second\": 50,\n        \"burst_size\": 100,\n        \"block_duration\": 300000000000\n      },\n      \"endpoints\": [\n        {\n          \"id\": \"get-data\",\n          \"path\": \"/api/data\",\n          \"method\": \"GET\",\n          \"limits\": {\n            \"requests_per_second\": 50,\n            \"burst_size\": 100\n          },\n          \"priority\": 10\n        }\n      ]\n    },\n    {\n      \"id\": \"bulk-api-2\",\n      \"service_id\": \"bulk-service\",\n      \"name\": \"Bulk API 2\",\n      \"upstream_url\": \"http://localhost:8083\",\n      \"default_limits\": {\n        \"requests_per_second\": 30,\n        \"burst_size\": 60,\n        \"block_duration\": 300000000000\n      },\n      \"endpoints\": [\n        {\n          \"id\": \"health\",\n          \"path\": \"/health\",\n          \"method\": \"GET\",\n          \"priority\": 1\n        }\n      ]\n    }\n  ],\n  \"overwrite_existing\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/import",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "import"]
+            }
+          }
+        },
+        {
+          "name": "Export All APIs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/export",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "export"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Templates",
+      "item": [
+        {
+          "name": "List Templates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/templates",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "templates"]
+            }
+          }
+        },
+        {
+          "name": "Create API from Template (Premium)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"api_id\": \"premium-api\",\n  \"service_id\": \"premium-service\",\n  \"name\": \"Premium API from Template\",\n  \"upstream_url\": \"http://premium-backend:8080\",\n  \"template\": \"premium\",\n  \"endpoints\": [\n    {\n      \"id\": \"get-data\",\n      \"path\": \"/api/data\",\n      \"method\": \"GET\",\n      \"priority\": 10\n    },\n    {\n      \"id\": \"post-data\",\n      \"path\": \"/api/data\",\n      \"method\": \"POST\",\n      \"priority\": 20\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/from-template",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "from-template"]
+            }
+          }
+        },
+        {
+          "name": "Create API from Template (Standard)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"api_id\": \"standard-api\",\n  \"service_id\": \"standard-service\",\n  \"name\": \"Standard API\",\n  \"upstream_url\": \"http://standard-backend:8080\",\n  \"template\": \"standard\",\n  \"endpoints\": [\n    {\n      \"id\": \"health\",\n      \"path\": \"/health\",\n      \"method\": \"GET\",\n      \"priority\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/from-template",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "from-template"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Testing & Resolution",
+      "item": [
+        {
+          "name": "Test Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"path\": \"/api/orders/orders\",\n  \"method\": \"GET\",\n  \"rule\": {\n    \"requests_per_second\": 100,\n    \"burst_size\": 200,\n    \"block_duration\": 300000000000\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis/test",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "test"]
+            }
+          }
+        },
+        {
+          "name": "Resolve Path",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/resolve?path=/api/orders/orders",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "resolve"],
+              "query": [
+                {
+                  "key": "path",
+                  "value": "/api/orders/orders"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reload Rules",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/reload",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "reload"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Events (SSE)",
+      "item": [
+        {
+          "name": "Subscribe to Events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/events",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "events"]
+            },
+            "description": "Server-Sent Events stream for real-time API changes. Use with Postman or curl -N for no buffering."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Metrics",
+      "item": [
+        {
+          "name": "List All APIs Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics"]
+            }
+          }
+        },
+        {
+          "name": "Get API Metrics (Default)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get API Metrics (Current Hour)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}/current",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}", "current"]
+            }
+          }
+        },
+        {
+          "name": "Get API Metrics (Today)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}/today",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}", "today"]
+            }
+          }
+        },
+        {
+          "name": "Get API Metrics (Yesterday)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}/yesterday",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}", "yesterday"]
+            }
+          }
+        },
+        {
+          "name": "Get API Metrics (Last 7 Days)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}/week",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}", "week"]
+            }
+          }
+        },
+        {
+          "name": "Get API Metrics (Last 30 Days)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}/month",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}", "month"]
+            }
+          }
+        },
+        {
+          "name": "Get API Metrics (Custom Range - Days)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}/range?days=3",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}", "range"],
+              "query": [
+                {
+                  "key": "days",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get API Metrics (Custom Range - Hours)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}/range?hours=6",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}", "range"],
+              "query": [
+                {
+                  "key": "hours",
+                  "value": "6"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get API Metrics (Custom Date Range)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}?from=2026-03-01T00:00:00Z&to=2026-03-10T00:00:00Z",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}"],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2026-03-01T00:00:00Z"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-03-10T00:00:00Z"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Stream Real-Time Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}/stream",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}", "stream"]
+            },
+            "description": "Server-Sent Events stream with real-time metrics updates every 5 seconds"
+          }
+        },
+        {
+          "name": "Export Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/{{api_id}}/export",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "{{api_id}}", "export"]
+            },
+            "description": "Downloads raw metrics data as JSON file"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. System",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Config Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/config",
+              "host": ["{{base_url}}"],
+              "path": ["config"]
+            }
+          }
+        },
+        {
+          "name": "Admin Stats (Legacy)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/stats",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Complete Workflow Examples",
+      "item": [
+        {
+          "name": "Create Payment Service (Complete)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"payment-service\",\n  \"service_id\": \"payments-v1\",\n  \"name\": \"Payment Service\",\n  \"upstream_url\": \"http://payment-backend:8080\",\n  \"default_limits\": {\n    \"requests_per_second\": 50,\n    \"burst_size\": 100,\n    \"block_duration\": 300000000000\n  },\n  \"endpoints\": [\n    {\n      \"id\": \"health\",\n      \"path\": \"/health\",\n      \"method\": \"GET\",\n      \"limits\": {\"requests_per_second\": 1000, \"burst_size\": 2000},\n      \"priority\": 1\n    },\n    {\n      \"id\": \"list-payments\",\n      \"path\": \"/api/v1/payments\",\n      \"method\": \"GET\",\n      \"limits\": {\"requests_per_second\": 50, \"burst_size\": 100},\n      \"priority\": 10\n    },\n    {\n      \"id\": \"create-payment\",\n      \"path\": \"/api/v1/payments\",\n      \"method\": \"POST\",\n      \"limits\": {\"requests_per_second\": 20, \"burst_size\": 40, \"block_duration\": 600000000000},\n      \"priority\": 20\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/apis",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis"]
+            },
+            "description": "Step 1: Create a complete payment service API with health check and standard endpoints"
+          }
+        },
+        {
+          "name": "Verify Creation",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/payment-service",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "payment-service"]
+            },
+            "description": "Step 2: Verify the API was created correctly"
+          }
+        },
+        {
+          "name": "Test Routing",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/apis/resolve?path=/api/v1/payments",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "apis", "resolve"],
+              "query": [
+                {
+                  "key": "path",
+                  "value": "/api/v1/payments"
+                }
+              ]
+            },
+            "description": "Step 3: Test which rule would apply to a specific path"
+          }
+        },
+        {
+          "name": "Test Proxy (Simulated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments"]
+            },
+            "description": "Step 4: Test the actual proxy endpoint (requires user token, not admin token)"
+          }
+        },
+        {
+          "name": "Monitor Metrics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/metrics/payment-service",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "metrics", "payment-service"]
+            },
+            "description": "Step 5: Check metrics for the payment service"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "YOUR_ADMIN_TOKEN",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "YOUR_USER_TOKEN",
+      "type": "string"
+    },
+    {
+      "key": "api_id",
+      "value": "order-service",
+      "type": "string"
+    },
+    {
+      "key": "endpoint_id",
+      "value": "list-orders",
+      "type": "string"
+    }
+  ]
+}

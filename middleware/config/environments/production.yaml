@@ -1,0 +1,107 @@
+# Production Environment Configuration
+# Maximum security and performance
+
+environment: production
+
+server:
+  port: "8080"
+  host: "0.0.0.0"
+  read_timeout: 5s
+  write_timeout: 10s
+  structured_logging: true
+
+tls:
+  enabled: true
+  cert_file: "/etc/ssl/certs/ratelimiter.crt"
+  key_file: "/etc/ssl/private/ratelimiter.key"
+
+storage:
+  type: "redis"
+  redis:
+    addr: "redis-prod.internal:6379"
+    password: "${REDIS_PASSWORD}"
+    db: 0
+    pool_size: 200
+    min_idle_conns: 20
+
+global_limits:
+  enabled: true
+  requests_per_second: 10000.0  # 10K RPS total
+  burst_size: 20000
+  window_size: 1m
+  distributed_attack_threshold: 50000
+  distributed_attack_window: 1m
+
+security:
+  ip_strategy: "cloudflare"  # Use CF-Connecting-IP
+  enable_ipv6_subnet_block: true
+  ipv6_subnet_size: 56
+  trusted_user_id_header: true
+  user_id_header: "X-Authenticated-User-ID"
+  admin_auth_token: "${PROD_ADMIN_TOKEN}"
+
+bot_detection:
+  level: "high"
+  additional_signatures:
+    - "abusive-scraper-v1"
+    - "credential-stuffing-bot"
+
+circuit_breaker:
+  threshold: 3                # Sensitive
+  timeout: 30s
+  max_probes: 1
+
+violation_handling:
+  base_block_duration: 15m
+  max_block_duration: 24h
+  exponential_backoff_base: 2.0
+  enable_jitter: true
+  jitter_max_percent: 0.1
+  decay_interval: 1h
+  decay_rate: 0.5
+
+rate_limiting:
+  default_algorithm: "sliding_window"
+  sliding_window_size: 1s
+  strict_backend_errors: true  # Fail closed
+
+logging:
+  level: "warn"  # Less verbose in prod
+  structured: true
+
+metrics:
+  enabled: true
+  prometheus:
+    enabled: true
+    path: "/metrics"
+    port: "9090"
+
+client_cookies:
+  enabled: true
+  name: "__block_status"
+  secure: true
+  same_site: "strict"
+
+cors:
+  enabled: true
+  allowed_origins:
+    - "https://app.yourdomain.com"
+    - "https://admin.yourdomain.com"
+  allowed_methods:
+    - "POST"
+    - "GET"
+    - "OPTIONS"
+  allowed_headers:
+    - "Content-Type"
+    - "X-API-Key"
+    - "Authorization"
+    - "X-Authenticated-User-ID"
+  max_age: 86400
+
+health:
+  enabled: true
+  path: "/health"
+
+shutdown:
+  timeout: 30s
+  drain_timeout: 15s

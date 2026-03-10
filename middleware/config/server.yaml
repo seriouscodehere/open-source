@@ -1,0 +1,161 @@
+# Centralized Rate Limiter Service Configuration
+
+server:
+  port: "8080"
+  host: "0.0.0.0"
+  read_timeout: 5s
+  write_timeout: 10s
+  idle_timeout: 120s
+  max_header_bytes: 1048576  # 1MB
+
+tls:
+  enabled: false
+  cert_file: "/etc/ssl/certs/ratelimiter.crt"
+  key_file: "/etc/ssl/private/ratelimiter.key"
+
+storage:
+  type: "memory"  # Options: "memory", "redis"
+  
+  # Redis configuration (used if type: redis)
+  redis:
+    addr: "localhost:6379"
+    password: ""
+    db: 0
+    pool_size: 100
+    min_idle_conns: 10
+    max_retries: 3
+    dial_timeout: 5s
+    read_timeout: 3s
+    write_timeout: 3s
+
+  # Memory backend configuration (used if type: memory)
+  memory:
+    max_tracked_ips: 100000
+    max_memory_mb: 512
+    cleanup_interval: 5m
+
+global_limits:
+  # Global rate limit across all services
+  enabled: true
+  requests_per_second: 1000.0  # Total RPS across all services
+  burst_size: 2000
+  window_size: 1m
+
+  # Distributed attack detection
+  distributed_attack_threshold: 10000  # requests per window
+  distributed_attack_window: 1m
+
+security:
+  # Admin API authentication
+  admin_auth_token: "${Ezoj8Ijk2bvlBpQtqr+YCY6EQql8hE/OT3Cwi7SnQX0=}"  # From env var
+  
+  # IP extraction strategy
+  ip_strategy: "direct"  # Options: direct, trusted_proxy, cloudflare, aws
+  
+  # Trusted proxy CIDRs (for StrategyTrustedProxy)
+  trusted_proxies:
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"
+    - "192.168.0.0/16"
+  
+  trusted_header: "X-Forwarded-For"
+  
+  # IPv6 handling
+  enable_ipv6_subnet_block: true
+  ipv6_subnet_size: 56
+
+  # User ID header for authenticated rate limiting
+  trusted_user_id_header: false
+  user_id_header: "X-Authenticated-User-ID"
+
+bot_detection:
+  level: "medium"  # Options: none, low, medium, high
+  
+  # Custom bot signatures (added to default list)
+  additional_signatures:
+    - "custom-scraper"
+    - "internal-bot"
+    
+circuit_breaker:
+  threshold: 5          # Failures before opening
+  timeout: 30s          # Time before half-open
+  max_probes: 3         # Probes in half-open state
+
+violation_handling:
+  # Block duration escalation
+  base_block_duration: 15m
+  max_block_duration: 24h
+  exponential_backoff_base: 2.0
+  
+  # Jitter prevents thundering herd
+  enable_jitter: true
+  jitter_max_percent: 0.1  # 10% jitter
+  
+  # Violation decay (forgiving repeat offenders)
+  decay_interval: 1h       # Check every hour
+  decay_rate: 0.5           # Reduce violations by 50% per 2 hours idle
+
+rate_limiting:
+  # Default algorithm: token_bucket or sliding_window
+  default_algorithm: "token_bucket"
+  
+  # Sliding window configuration
+  sliding_window_size: 1s
+  
+  # Strict mode: fail on backend errors
+  strict_backend_errors: false
+
+logging:
+  structured: true
+  level: "info"  # debug, info, warn, error
+  
+  # Fields to include in structured logs
+  include_fields:
+    - timestamp
+    - level
+    - message
+    - ip
+    - endpoint
+    - service_id
+    - decision
+
+metrics:
+  enabled: true
+  
+  # Prometheus endpoint
+  prometheus:
+    enabled: true
+    path: "/metrics"
+    port: "9090"
+
+client_cookies:
+  # Client-side block tracking
+  enabled: true
+  name: "__block_status"
+  secure: false      # Set true in production with HTTPS
+  same_site: "lax"   # Options: lax, strict, none
+
+cors:
+  enabled: true
+  allowed_origins:
+    - "*"
+  allowed_methods:
+    - "POST"
+    - "GET"
+    - "OPTIONS"
+  allowed_headers:
+    - "Content-Type"
+    - "X-API-Key"
+    - "Authorization"
+  max_age: 86400
+
+# Health check configuration
+health:
+  enabled: true
+  path: "/health"
+  interval: 30s
+
+# Graceful shutdown
+shutdown:
+  timeout: 30s
+  drain_timeout: 10s

@@ -1029,10 +1029,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1055,10 +1051,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1081,10 +1073,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1107,10 +1095,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1133,10 +1117,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1159,10 +1139,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1185,10 +1161,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1211,10 +1183,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1237,10 +1205,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1263,10 +1227,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1311,10 +1271,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {
@@ -1337,10 +1293,6 @@
           {
             "key": "Content-Type",
             "value": "application/json"
-          },
-          {
-            "key": "X-API-Key",
-            "value": "{{api_key}}"
           }
         ],
         "body": {

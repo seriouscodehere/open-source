@@ -79,7 +79,7 @@ go mod tidy
 go run main.go
 ```
 
-> ⚙️ Full configuration options are documented in the [`middleware/readme.md`](./middleware/readme.md)
+> ⚙️ Full configuration options are documented in the [`middleware/README.md`](./middleware/README.md)
 
 ---
 

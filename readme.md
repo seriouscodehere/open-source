@@ -127,4 +127,10 @@ This project is open source and available under the [MIT License](LICENSE).
 
 If this project helped you, please consider giving it a ⭐ on GitHub — it means a lot!
 
-> Built with ❤️ by [@seriouscodehere](https://youtube.com/@seriouscodehere)
+## Connect
+
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@seriouscodehere)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/muhammad-waleed-6a2224363/)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/seriouscodehere)
+
+> Built with ❤️ by Waleed
